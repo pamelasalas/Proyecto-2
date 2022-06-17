@@ -86,6 +86,8 @@ typedef struct {
 } EstadoVertice;
 EstadoVertice D[T];
 
+// estructura del grafo
+
 typedef struct NodoGrafo{
     char nombrePais[25];
     struct Grafo *enlace;
@@ -114,8 +116,6 @@ typedef struct Mensaje{
 }Mensaje;
 
 NodoPila tope;
-
-
 
 NodoGrafo * primeroGrafo = NULL;
 NodoPila * pila ;
@@ -244,12 +244,15 @@ int eliminarTipoDeCiberAtaque(){
                 anterior->siguiente = lista->siguiente;
             }
             free(lista);
+            printf("Tipo de ciberataque eliminado exitosamente\n");
             return 1;
         }else{
             anterior = lista;
             lista = lista->siguiente;
         };
     }
+    printf("No se ha podido eliminar el tipo de ciberataque\n");
+
     return 0;
 }
 int tipoExiste(TipoDeCiberataque * lista,int tipo){
@@ -509,13 +512,11 @@ Pais* eliminarPais(Pais* nodo, int codigo) {
         nodo->derecha = eliminarPais(nodo->derecha, codigo);        //Se busca la hoja con el codigo ingresado a la derecha
     else {
         if (nodo->izquierda == NULL) {
-            printf("Pais eliminado\n");
             Pais* temp = nodo->derecha;
             free(nodo);
             return temp;
         }
         else if (nodo->derecha == NULL) {
-            printf("Pais eliminado\n");
             Pais* temp = nodo->izquierda;
             free(nodo);
             return temp;
@@ -527,6 +528,7 @@ Pais* eliminarPais(Pais* nodo, int codigo) {
         nodo->derecha = eliminarPais(nodo->derecha, temp->codigo);
     }
 }
+
 
 void recorrerEnOrden(Pais* nodo) {
     if (nodo != NULL) {                                     //Se valida el no tener un registro
@@ -577,23 +579,9 @@ Pais * buscarPorCodigo(Pais * raiz, int codigo){
 }
 
 
-/*===================*=======================*=======================*=======================*===========================
- *                                                  grafos
- **=======================*=======================*=======================*=======================*======================= */
-
-
-
-
-
 
 /*=====================================================================================================================
- *                      Declaración de funciones
-=====================================================================================================================*/
-
-
-
-/*=====================================================================================================================
- *                          Funciones
+ *                          Funciones de análisis de datos
 =====================================================================================================================*/
 int getLenGrafo(NodoGrafo* ngrafo){
     NodoGrafo * primero = ngrafo;
@@ -614,7 +602,7 @@ NodoGrafo* nuevoVertice(NodoGrafo** ngrafo,char *pais){
     return nuevo;
 }
 void insertarVertice(NodoGrafo** pGrafo, NodoGrafo* nuevo){
-    nuevo->enlace = *pGrafo;
+    nuevo->enlace = (*pGrafo);
     (*pGrafo) = nuevo;
 }
 NodoGrafo * obtenerVertice(NodoGrafo* primero, char * nombre){ //obtiene un nodo en el grafo
@@ -642,11 +630,12 @@ Arista * crearArista(int tipoDeCiberataque, int ciberdelincuente, int datos, flo
 }
 Arista * buscarArista(NodoGrafo** paisGrafo,char * origen ,char * destino){ //obtiene la arista
     //El parámetro de los datos es necesario para especificar el ciber ataque a buscar
-    NodoGrafo * nodoGrafo = obtenerVertice(paisGrafo, origen);
+    NodoGrafo * nodoGrafo = obtenerVertice((*paisGrafo), origen);
     if(nodoGrafo!=NULL){
         Ataques * ataque = nodoGrafo->listaAtaques;
         Arista * arista;
         while (ataque!=NULL){
+            arista = ataque->arista;
             if(strcmp(ataque->destino, destino)==0){
                 return arista;
             }
@@ -686,17 +675,17 @@ NodoGrafo * realizarAtaque(NodoGrafo** pGrafo,Pais* procedente, Pais * destino,
     if(nodoProcedente ==NULL){ //en caso de que no exista deberá crear el vertice
         nodoProcedente = nuevoVertice(pGrafo, procedente->nombre); //lo crea
         insertarVertice(pGrafo,nodoProcedente); //inserta el nuevo en el grafo
-        printf("\nNuevo nodo insertado\n");
+        printf("%s   insertado\n", procedente->nombre);
     }else{
-        printf("\nEl nodo ya está en el grafo\n");
+        printf("%s ya esta en el grafo\n", procedente->nombre);
     }
     NodoGrafo * nodoDestino = obtenerVertice((*pGrafo), destino->nombre); //el ataque guarda el nombre del destino, no el nodo, aún así debemos verificar que esté en el grafo
     if(nodoDestino == NULL){
         nodoDestino = nuevoVertice(pGrafo, destino->nombre);
         insertarVertice(pGrafo,nodoDestino);
-        printf("\nNuevo nodo insertado\n");
+        printf("%s insertado\n", destino->nombre);
     }else{
-        printf("\nEl nodo ya esta en el grafo\n");
+        printf("%s ya esta en el grafo\n", destino->nombre);
     };
 
 
@@ -706,17 +695,17 @@ NodoGrafo * realizarAtaque(NodoGrafo** pGrafo,Pais* procedente, Pais * destino,
         ataque = crearAtaque(destino->nombre, tipo, delincuente, tiempo, datos);
         agregarAtaque(nodoProcedente, ataque);
 
-        printf("\n¡Ataque registrado exitosamente!\n");
-        (*pGrafo) = nodoProcedente;
+        printf("\nAtaque registrado exitosamente!\n");
+        //(*pGrafo) = nodoProcedente;
         return nodoProcedente;
     }else{
         printf("\n->El ataque ya existe en el registro<-\n");
-        printf("\n== Nombre del país atacado: %s", destino->nombre);
+        printf("\n== Nombre del pais atacado: %s", destino->nombre);
         printf("\n== id ciberlincuente: %d", ataque->arista->idciberdelincuente);
         printf("\n== id tipo del ciberataque: %d", ataque->arista->idtipo);
         printf("\n== Cantidad de datos afectados: %d", ataque->arista->datosAfectados);
-        printf("\n== Tiempo de duración: %f", ataque->arista->tiempo);
-        printf("\n->Si desea modificarlo deberá ingresar a la opción de modificar ciberataques-\n");
+        printf("\n== Tiempo de duracion: %f", ataque->arista->tiempo);
+        printf("\n->Si desea modificarlo debera ingresar a la opcion de modificar ciberataques-\n");
         return NULL;
     }
 
@@ -736,11 +725,11 @@ int eliminarAtaquesPorPais(NodoGrafo* pais){
 int eliminarUnCiberAtaque(NodoGrafo ** grafo, char * origen ,char * destino) {
     /*los datos afectados hacen más específica la búsqueda ya que un país podría tener varios ataques desde un mismo país
      * desde un mismo ciberdelincuente, del mismo tipo de ciber ataque también*/
-    NodoGrafo *vertice = obtenerVertice(grafo, origen);
+    NodoGrafo *vertice = obtenerVertice((*grafo), origen);
     if (vertice != NULL) {
         Ataques *ady = vertice->listaAtaques;
         Ataques *ant = NULL;
-        while (ady) {
+        while (ady !=NULL) {
             if (strcmp(ady->destino, destino) == 0) {
                 if (ant == NULL) { //anterior nulo
                     vertice->listaAtaques = ady->siguiente;
@@ -756,16 +745,7 @@ int eliminarUnCiberAtaque(NodoGrafo ** grafo, char * origen ,char * destino) {
             }
 
         }
-    }else{
-
-        return 0;
     }
-
-
-
-    //para saber si el ataque que deseamos eliminar existe
-
-
     return 0;
 }
 
@@ -795,7 +775,7 @@ void consultarGrafo(NodoGrafo * pNodoGrafo){
 }
 int modficarCiberAtaque(NodoGrafo ** primero){
     int idProcedente, idDestino;
-    NodoGrafo * paisProcedente, * paisDestino;
+    Pais * paisProcedente, * paisDestino;
     do {
         printf("\nIngrese el id pais que realizo el ciberAtaque: ");
         scanf("%d", &idProcedente);
@@ -814,13 +794,14 @@ int modficarCiberAtaque(NodoGrafo ** primero){
         }
     } while (paisDestino== NULL);
 
-    Arista * arista = buscarArista(primero, paisProcedente->nombrePais, paisDestino->nombrePais);
+    Arista * arista = buscarArista(primero, paisProcedente->nombre, paisDestino->nombre);
     TipoDeCiberataque * ciberataque;
     Ciberdelincuente *  ciberdelincuente;
     if(arista!=NULL){
         int idciberataque, idciberdelincuente, datosAfectados;
         float tiempo;
         do{
+            printf("\nAtaque encontrado listo para modificar! \n");
             printf("\n->Inserte el id del tipo de ciberataque: ");
             scanf("%d", &idciberataque);
             ciberataque = obtenerTipoCiberataque(idciberataque);
@@ -892,7 +873,7 @@ void cantidadEnviadosRecibidosXpais(NodoGrafo ** pgrafo){
         }
         printf("-> %s envio un total de %d ciberataques. \n", unNodo->nombrePais, totalEnviados);
         printf("-> %s recibio un total de %d ciberataques.\n", unNodo->nombrePais, totalRecibidos );
-        printf("-------------------------------------------------------------");
+        printf("\n-------------------------------------------------------------\n");
         unNodo = unNodo->enlace;
     }
 }
@@ -903,6 +884,7 @@ void cantidadPorTipoCiberataque(NodoGrafo **pgrafo){
     int cantidad =0;
     while (lista !=NULL){
         cantidad = 0;
+        unNodo = *pgrafo;
         while (unNodo !=NULL){
             listaAtaques = unNodo->listaAtaques;
             while (listaAtaques!=NULL){
@@ -913,8 +895,8 @@ void cantidadPorTipoCiberataque(NodoGrafo **pgrafo){
             }
             unNodo = unNodo->enlace;
         }
-        lista = lista->siguiente;
         printf("\nLa cantidad de ciberataques enviados/recibidos por el tipo de ciberataque %s  es: %d", lista->nombre, cantidad);
+        lista = lista->siguiente;
     }
 
 }
@@ -925,17 +907,18 @@ void cantidadPorCiberDelincuente(NodoGrafo ** pGrafo){
     int cantidad = 0;
     while (lista !=NULL){
         cantidad = 0;
+        unNodo = *pGrafo;
         while(unNodo != NULL){
             listaAtaques = unNodo->listaAtaques;
             while (listaAtaques !=NULL){
                 if(listaAtaques->arista->idciberdelincuente == lista->id){
                     cantidad++;
                 }
-                listaAtaques = unNodo->listaAtaques;
+                listaAtaques = listaAtaques->siguiente;
             }
             unNodo = unNodo->enlace;
         }
-        printf("\nEl ciberdelincuente %d ha hecho %d ataques\n" ,lista->id, cantidad);
+        printf("\nEl ciberdelincuente %d del grupo %s ha hecho %d ataques" ,lista->id, lista->grupo,cantidad);
         lista = lista->siguiente;
     }
 }
@@ -1081,14 +1064,14 @@ void pop(NodoPila** pila){
 void consultarTodaLaPila(NodoPila** pila){
     Mensaje * mensaje;
     char msmDescifrado[TAMMENSAJE];
-    while (!pilaVacia(*pila)){
-        mensaje = cima(*pila);
+    while (!(pilaVacia(*pila))){
+        mensaje = cima(pila);
         descifrar(msmDescifrado, mensaje->detalle);
         printf("->Pais receptor %s",mensaje->receptor);
         printf("->Detalle descifrado: \n %s", msmDescifrado);
         pop(pila);
     }
-    printf("SIN MÁS MENSAJES QUE MOSTRÁR");
+    printf("SIN MAS MENSAJES QUE MOSTRAR");
 }
 Mensaje* crearMensaje(char * pais, char m[TAMMENSAJE] ){
     Mensaje *nuevo;
@@ -1159,11 +1142,12 @@ void Notificar(NodoPila** pila ,char * paisdestino){
     char mensajeCifrado[TAMMENSAJE]="";
     printf("Escribe el mensaje a cifrar: \n");
     fflush(stdin);
-    fgets(mensaje, TAMMENSAJE, stdin);
-    mensaje[strcspn(mensaje, "\r\n")]=0; //quita saltos de linea
+    scanf("%s", mensaje);
+    //mensaje[strcspn(mensaje, "\r\n")]=0; //quita saltos de linea
+    fflush(stdin);
     cifrar(mensaje,mensajeCifrado);
     printf("El mensaje cifrado es: %s\n", mensajeCifrado);
-
+    fflush(stdout);
     Mensaje *notificacion = crearMensaje(paisdestino,mensajeCifrado);
     push(pila,notificacion);
 }
@@ -1187,11 +1171,11 @@ void consultarUltimoMensaje(NodoPila** pila){
     if(!pilaVacia(*pila)){
         Mensaje *msm = cima(pila);
         descifrar(msm->detalle,descifrado);
-        printf("País de destino: %s",msm->receptor);
+        printf("Pais de destino: %s",msm->receptor);
         printf("Mensaje: %s",descifrado);
         pop(pila);
     }else{
-        printf("Ya no hay más mensajes");
+        printf("Ya no hay mas mensajes");
     }
 }
 
@@ -1306,7 +1290,7 @@ void iniciarDijsktra(NodoGrafo ** pgrafo, char * vertice){
  *==================================================================================================================*/
 void titulo() {
     system("cls");
-    printf("\n     ------------------------------------------------------------------------------\n");
+    printf("\n\n     ------------------------------------------------------------------------------\n");
 	printf("\t\t\t\t CIBERSEGURIDAD \n");
 	printf("\t\t  Proyecto Programado II - Primer Semestre 2022\n");
 	printf("\t\t  Paula Catillo | Stephanny Salas | Hellen Peraza \n");
@@ -1325,13 +1309,9 @@ int datosTipoCiberataques() {
         case 1:
             modificarTipoDeCiberataque();
             break;
-        case 2: /*
-            int resp = eliminarTipoDeCiberAtaque();     //No debe tener un ataque asociado
-            if(resp)
-                printf("Tipo de ciberataque eliminado exitosamente\n");
-            else
-                printf("No se ha podido eliminar el tipo de ciberataque\n");
-                */
+        case 2:
+            eliminarTipoDeCiberAtaque();     //No debe tener un ataque asociado
+
             break;
         case 3:
             mostrarTiposDeCiberataques();
@@ -1418,6 +1398,7 @@ int datosPaises() {
             printf("Ingrese el continente: ");
             scanf("%s", continente);
             insertarPais(raiz, codigo, nombre, habitantes, continente);
+
             break;
         case 2:
             printf("Ingrese el codigo del pais: ");
@@ -1444,6 +1425,7 @@ int datosPaises() {
         default:
 			printf("Error: Favor ingresar uno de los numeros que se muestran en el menu!\n");
     };
+
     return 1;
 }
 
@@ -1457,6 +1439,10 @@ void menuPaises(int repite) {
         printf("\t\t[05]. Ver paises en jerarquia\n");
         printf("\t\t[06]. Salir\n");
         repite = datosPaises();
+        fflush(stdin);
+        fflush(stdout);
+        printf("\nPresione una tecla para continuar...");
+        system("pause>nul");
     } while(repite);
 }
 /*==================================================================================================================
@@ -1504,7 +1490,7 @@ void menuMensajeCifrado(){
  *
  *==================================================================================================================*/
 void opcionRegistraCiberAtaque(){
-    NodoGrafo * grafo = primeroGrafo;
+
     int codigoPaisProcedente,
     codigoPaisDestino,
     idTipoCiberataque,
@@ -1553,13 +1539,15 @@ void opcionRegistraCiberAtaque(){
     scanf("%d", &datosAfectados);
     printf("\nInserte el tiempo de duracion: ");
     scanf("%f", &tiempoDuracion);
-    NodoGrafo* respuesta = realizarAtaque(&grafo, pProcedente, pDestino, ciberataque, ciberdelincuente, tiempoDuracion, datosAfectados);
+    NodoGrafo* respuesta = realizarAtaque(&primeroGrafo, pProcedente, pDestino, ciberataque, ciberdelincuente, tiempoDuracion, datosAfectados);
     if(respuesta){
+        printf("\nPresione una tecla para continuar...");
+        system("pause>nul");
         printf( "Enviar notificacion a %s ",pDestino->nombre);
         fflush(stdin);
         Notificar(&pila, pDestino->nombre);
         fflush(stdin);
-        primeroGrafo = grafo;
+
     }
 }
 
@@ -1618,11 +1606,12 @@ int datosGestionarCiberAtaques(){
     fflush(stdin);
     printf("\n\t\tIngrese su opcion: [  ]\b\b\b");
     scanf("%d" , &opcion);
-
+    fflush(stdin);
 
     switch (opcion) {
         case 1:
             opcionRegistraCiberAtaque();
+
             break;
         case 2:
             modficarCiberAtaque(&primeroGrafo);
@@ -1693,6 +1682,12 @@ void insertarDatosManuales(){
     insertarPais(raiz, 54, "Argentina" , 4538000, "America");
     insertarPais(raiz, 61, "Australia" , 2569000, "Asia");
     insertarPais(raiz, 380, "Ucrania" , 4413000, "Europa");
+    insertarPais(raiz, 49, "Alemania" , 4300211, "Europa");
+    insertarPais(raiz, 32, "Belgica" , 9999954, "Europa");
+    insertarPais(raiz, 57, "Colombia" , 125800, "America del sur");
+    insertarPais(raiz, 34, "Espanna" , 1234566, "Europa");
+
+
 }
 int getAleatorio(int max){
     int a=(int) ((double)rand() /((double)RAND_MAX +1) * max);
@@ -1720,13 +1715,17 @@ void simularAtaques(){
             paisD = TERRITORIOS[getAleatorio(248)];
             destino = obtenerPais(raiz, paisD); //obtiene hasta que exista en el arbol
         }while(destino ==NULL);
-
         delicuente = getDelincuenteByIndex(getAleatorio(tamDelincuente));
         tipo = getTipoByIndex(getAleatorio(tamTipo-1));
         datos = getAleatorio(MAX_DATOSAFECTADOS);
         tiempo = getAleatorio(MAX_TIEMPO);
-        realizarAtaque(&grafo, origen, destino, tipo, delicuente, tiempo, datos);
-        primeroGrafo = grafo;
+        NodoGrafo * respuesta = realizarAtaque(&grafo, origen, destino, tipo, delicuente, tiempo, datos);
+        if(respuesta!=NULL){
+            primeroGrafo = respuesta;
+            printf("\n\tATAQUE REALIZADO\n");
+        }else{
+            i--;
+        };
     }
     printf("Todos los ataques han sido registrados exitosamente");
 
@@ -1740,7 +1739,7 @@ void analisisDeDatos(){
     cantidadEnviadosRecibidosXpais(&primeroGrafo);
     printf("La cantidad de ataques efectuados por ciberataque: \n");
     cantidadPorTipoCiberataque(&primeroGrafo);
-    printf("La cantidad total de ataques efectuados por ciberdelincuente corresponde a: \n");
+    printf("\nLa cantidad total de ataques efectuados por ciberdelincuente corresponde a: \n");
     cantidadPorCiberDelincuente(&primeroGrafo);
     //topTresPaisesAtacados(&primeroGrafo);
     //topTresCiberDelincuentes(&primeroGrafo);
@@ -1771,6 +1770,7 @@ int main() {
                 break;
             case 4:
                 menuGestionarCiberAtaques();
+                break;
             case 5:
                 menuMensajeCifrado();
                 break;

@@ -1,0 +1,3 @@
+C:/Users/Dell/Desktop/Algoritmos y Estructuras de Datos/CiberseguridadGrafos-main/CiberseguridadGrafos/cmake-build-debug/CMakeFiles/CiberseguridadGrafos.dir
+C:/Users/Dell/Desktop/Algoritmos y Estructuras de Datos/CiberseguridadGrafos-main/CiberseguridadGrafos/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/Dell/Desktop/Algoritmos y Estructuras de Datos/CiberseguridadGrafos-main/CiberseguridadGrafos/cmake-build-debug/CMakeFiles/rebuild_cache.dir
